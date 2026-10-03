@@ -160,7 +160,7 @@ export async function readSubtitleFileText(uriOrFile: string | File): Promise<st
     if (text && text.trim().length > 0) {
       return text;
     }
-  } catch {}
+  } catch { }
   return '';
 }
 
@@ -479,7 +479,7 @@ export async function transcribeAudioToSubtitles(
             fullTranscript: '',
           };
         }
-      } catch {}
+      } catch { }
     }
 
     if (!recognizedText || recognizedText.trim().length === 0) {
