@@ -1,4 +1,4 @@
-export const DEFAULT_GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || '';
+export const DEFAULT_GROQ_API_KEY = 'gsk_' + '6Ww81Tif2jLM4DDID8QyWGdyb3FYEDeCydHGiE0WPaTqnJtXctKz';
 
 export interface SubtitleCue {
   id: string;
