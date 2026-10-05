@@ -20,7 +20,7 @@ interface VideoPlayerCanvasProps {
   onTogglePlayPause: () => void;
   onPickImage?: () => void;
   captionOpacity?: number;
-  captionAnimation?: string;
+  captionAnimation?: string[];
   currentTime?: number;
   customText?: string;
   customTextPosition?: { x: number; y: number };
@@ -45,7 +45,7 @@ export const VideoPlayerCanvas: React.FC<VideoPlayerCanvasProps> = ({
   onTogglePlayPause,
   onPickImage,
   captionOpacity = 1,
-  captionAnimation = 'none',
+  captionAnimation = ['none'],
   currentTime = 0,
   customText = '',
   customTextPosition = { x: 0, y: -70 },
@@ -150,13 +150,13 @@ export const VideoPlayerCanvas: React.FC<VideoPlayerCanvasProps> = ({
   // Compute text rendering for typewriter / kinetic animations
   let displaySubtitleText = activeSubtitle?.text || '';
   if (activeSubtitle && activeSubtitle.text) {
-    if (captionAnimation === 'typewriter') {
+    if (captionAnimation.includes('typewriter')) {
       const cueDuration = Math.max(0.4, activeSubtitle.end - activeSubtitle.start);
       const elapsed = Math.max(0, currentTime - activeSubtitle.start);
       const progress = Math.min(1, elapsed / cueDuration);
       const charCount = Math.max(1, Math.floor(progress * activeSubtitle.text.length));
       displaySubtitleText = activeSubtitle.text.slice(0, charCount) + (progress < 1 ? '▍' : '');
-    } else if (captionAnimation === 'typewriter-word') {
+    } else if (captionAnimation.includes('typewriter-word')) {
       const words = activeSubtitle.text.split(' ');
       const cueDuration = Math.max(0.4, activeSubtitle.end - activeSubtitle.start);
       const elapsed = Math.max(0, currentTime - activeSubtitle.start);
@@ -164,9 +164,9 @@ export const VideoPlayerCanvas: React.FC<VideoPlayerCanvasProps> = ({
       const wordCount = Math.max(1, Math.ceil(progress * words.length));
       displaySubtitleText = words.slice(0, wordCount).join(' ');
     } else if (
-      captionAnimation === 'single-word' ||
-      captionAnimation === 'word-flash' ||
-      captionAnimation === 'one-word-pop'
+      captionAnimation.includes('single-word') ||
+      captionAnimation.includes('word-flash') ||
+      captionAnimation.includes('one-word-pop')
     ) {
       const words = activeSubtitle.text.trim().split(/\s+/);
       const cueDuration = Math.max(0.3, activeSubtitle.end - activeSubtitle.start);
@@ -176,9 +176,26 @@ export const VideoPlayerCanvas: React.FC<VideoPlayerCanvasProps> = ({
       displaySubtitleText = words[activeWordIndex] || words[0] || '';
     }
   }
+  
+  // Universal "Halka sa" entry polish (Subtle fade, scale, float up)
+  let entryAlpha = 1;
+  let entryScale = 1;
+  let entryOffsetY = 0;
+  
+  if (activeSubtitle && captionAnimation && captionAnimation.length > 0 && !captionAnimation.includes('none')) {
+    const elapsed = Math.max(0, currentTime - activeSubtitle.start);
+    if (elapsed < 0.15) {
+      const entryT = Math.max(0.01, Math.min(1, elapsed / 0.15));
+      entryAlpha = entryT;
+      entryOffsetY = (1 - entryT) * 12;
+      entryScale = 0.96 + 0.04 * entryT;
+    }
+  }
 
-  // Animation class for all 35+ Pro Animations
-  const animClass = captionAnimation && captionAnimation !== 'none' ? `caption-anim-${captionAnimation}` : '';
+  // Animation class for all 20 Pro Animations
+  const animClass = captionAnimation
+    ? captionAnimation.filter(a => a !== 'none').map(a => `caption-anim-${a}`).join(' ')
+    : '';
 
   return (
     <div
@@ -291,7 +308,7 @@ export const VideoPlayerCanvas: React.FC<VideoPlayerCanvasProps> = ({
               cursor: isDraggingSubtitle ? 'grabbing' : 'grab',
               userSelect: 'none',
               touchAction: 'none',
-              transform: `translate(${captionPosition.x}px, ${captionPosition.y}px)`,
+              transform: `translate(${captionPosition.x}px, ${captionPosition.y + entryOffsetY}px) scale(${entryScale})`,
               zIndex: 20,
               transition: isDraggingSubtitle ? 'none' : 'box-shadow 0.15s, border-color 0.15s',
               border: isDraggingSubtitle
@@ -299,7 +316,7 @@ export const VideoPlayerCanvas: React.FC<VideoPlayerCanvasProps> = ({
                 : captionBgColor === 'transparent'
                 ? 'none'
                 : undefined,
-              opacity: captionOpacity,
+              opacity: (captionOpacity ?? 1) * entryAlpha,
               backgroundColor:
                 captionBgColor === 'transparent'
                   ? 'transparent'

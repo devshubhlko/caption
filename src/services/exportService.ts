@@ -23,7 +23,7 @@ export interface ExportOptions {
   captionFontFamily: string;
   captionPosition: { x: number; y: number };
   captionOpacity?: number;
-  captionAnimation?: string;
+  captionAnimation?: string[];
   duration: number;
   customText?: string;
   customTextPosition?: { x: number; y: number };
@@ -75,7 +75,7 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
     captionFontFamily,
     captionPosition,
     captionOpacity = 1,
-    captionAnimation = 'none',
+    captionAnimation = ['none'],
     duration,
     customText = '',
     customTextPosition = { x: 0, y: -70 },
@@ -96,6 +96,7 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
   }
 
   // True High Definition Dimensions
+  const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   let width = 1080;
   let height = 1920;
 
@@ -108,6 +109,11 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
   } else if (aspectRatio === '4:5') {
     width = 1080;
     height = 1350;
+  }
+  
+  if (isMobile) {
+    width = Math.round(width * 0.5); // Prevent mobile crash
+    height = Math.round(height * 0.5);
   }
 
   // 1. High-Resolution Offscreen Canvas
@@ -167,8 +173,9 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
     }
   }
 
-  // Capture ultra smooth 60 FPS video stream
-  const canvasStream = canvas.captureStream(60);
+  // Capture ultra smooth video stream
+  const fps = isMobile ? 30 : 60; // 30 FPS for mobile to prevent freezing
+  const canvasStream = canvas.captureStream(fps);
   let combinedStream = canvasStream;
 
   if (audioDestNode) {
@@ -227,7 +234,6 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
   }
 
   const totalDurationMs = Math.max(1000, (duration > 0 ? duration : 15) * 1000);
-  const fps = 60; // 60 FPS for butter smooth feel
   const frameIntervalMs = 1000 / fps;
   const scaleFactor = width / 360;
   const fontFam = captionFontFamily && captionFontFamily !== 'default' ? `"${captionFontFamily}", sans-serif` : 'sans-serif';
@@ -284,12 +290,21 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
       let glowBonus = 0;
 
       // Calculate Style Animation for Speech Subtitles
-      if (activeCueItem && captionAnimation && captionAnimation !== 'none') {
+      if (activeCueItem && captionAnimation && captionAnimation.length > 0 && !captionAnimation.includes('none')) {
         const cueDuration = Math.max(0.3, activeCueItem.end - activeCueItem.start);
         const elapsed = Math.max(0, currSec - activeCueItem.start);
         const progress = Math.min(1, elapsed / cueDuration);
+        
+        // Universal "Halka sa" entry polish (Subtle fade, scale, float up)
+        if (elapsed < 0.15) {
+          const entryT = Math.max(0.01, elapsed / 0.15);
+          animAlpha *= entryT;
+          animOffsetY += (1 - entryT) * 12 * scaleFactor;
+          scale *= 0.96 + 0.04 * entryT;
+        }
 
-        switch (captionAnimation) {
+        captionAnimation.forEach((anim) => {
+          switch (anim) {
           case 'typewriter': {
             const charCount = Math.max(1, Math.floor(progress * text.length));
             displayText = text.slice(0, charCount) + (progress < 1 ? '▍' : '');
@@ -310,7 +325,7 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
             const wordDuration = cueDuration / Math.max(1, words.length);
             const wordElapsed = elapsed % wordDuration;
             const wordProgress = Math.min(1, wordElapsed / wordDuration);
-            if (captionAnimation === 'one-word-pop') {
+            if (anim === 'one-word-pop') {
               scale = 1 + 0.35 * Math.sin(wordProgress * Math.PI);
             }
             break;
@@ -418,6 +433,7 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
             break;
           }
         }
+        });
       }
 
       ctx.save();
@@ -555,20 +571,23 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
     }
   };
 
-  // Render loop running at 60 FPS
+  // Render loop using setTimeout to yield to browser event loop
   await new Promise<void>((resolve) => {
     let currentElapsedMs = 0;
 
-    const interval = setInterval(() => {
+    const renderNextFrame = () => {
       currentElapsedMs += frameIntervalMs;
       const currSec = currentElapsedMs / 1000;
       drawFrame(currSec);
 
       const pct = Math.min(95, Math.round(35 + (currentElapsedMs / totalDurationMs) * 60));
-      onProgress(pct, `Rendering 60 FPS Animated HD: ${formatTimeHelper(currSec)} / ${formatTimeHelper(duration)}...`);
+      
+      // Update progress less frequently to save UI thread
+      if (currentElapsedMs % (frameIntervalMs * 10) < frameIntervalMs) {
+        onProgress(pct, `Rendering ${fps} FPS HD: ${formatTimeHelper(currSec)} / ${formatTimeHelper(duration)}...`);
+      }
 
       if (currentElapsedMs >= totalDurationMs) {
-        clearInterval(interval);
         setTimeout(() => {
           mediaRecorder.stop();
           if (audioSourceNode) {
@@ -579,8 +598,12 @@ export async function exportHdVideo(options: ExportOptions): Promise<ExportResul
           }
           resolve();
         }, 350);
+      } else {
+        setTimeout(renderNextFrame, 0); // Yield to browser to prevent mobile freezing
       }
-    }, frameIntervalMs);
+    };
+    
+    renderNextFrame();
   });
 
   onProgress(98, 'Mastering 1080p MP4 stream container...');

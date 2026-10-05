@@ -6,8 +6,8 @@ import { ANIMATION_EFFECTS, CaptionAnimationEffect } from '../services/captionPr
 
 interface AnimationEffectsModalProps {
   isOpen: boolean;
-  activeAnimation: string;
-  onSelectAnimation: (animId: string) => void;
+  activeAnimation: string[];
+  onSelectAnimation: (animIds: string[]) => void;
   onClose: () => void;
   currentSubtitleText?: string;
 }
@@ -20,21 +20,13 @@ export const AnimationEffectsModal: React.FC<AnimationEffectsModalProps> = ({
   currentSubtitleText,
 }) => {
   const { isDark, theme } = useAppTheme();
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'kinetic' | 'motion' | 'glow' | 'creative'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   if (!isOpen) return null;
 
-  const categories = [
-    { id: 'all', label: `All (${ANIMATION_EFFECTS.length})` },
-    { id: 'kinetic', label: '⚡ Kinetic / Words' },
-    { id: 'motion', label: '🌊 Motion / Moves' },
-    { id: 'glow', label: '✨ Glow & Neon' },
-    { id: 'creative', label: '🎨 3D & Creative' },
-  ];
+
 
   const filteredAnimations = ANIMATION_EFFECTS.filter((anim) => {
-    if (selectedCategory !== 'all' && anim.category !== selectedCategory) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       return (
@@ -106,7 +98,7 @@ export const AnimationEffectsModal: React.FC<AnimationEffectsModalProps> = ({
             </div>
             <div>
               <h3 style={{ fontSize: '16px', fontWeight: 800, color: theme.textPrimary, margin: 0 }}>
-                Animation Effects ({ANIMATION_EFFECTS.length}+ Pro)
+                Animation Effects (20 Pro)
               </h3>
               <p style={{ fontSize: '11px', color: theme.textSecondary, margin: '2px 0 0' }}>
                 Select kinetic typography, typewriter, or dynamic viral animations
@@ -147,7 +139,7 @@ export const AnimationEffectsModal: React.FC<AnimationEffectsModalProps> = ({
           <Search size={16} color={theme.textSecondary} style={{ marginRight: '8px' }} />
           <input
             type="text"
-            placeholder="Search 35+ animations (e.g. Typewriter, Hormozi, Wave, Glitch)..."
+            placeholder="Search 20 animations (e.g. Typewriter, Hormozi, Wave, Glitch)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -175,40 +167,7 @@ export const AnimationEffectsModal: React.FC<AnimationEffectsModalProps> = ({
           )}
         </div>
 
-        {/* Category Tabs */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '6px',
-            overflowX: 'auto',
-            paddingBottom: '8px',
-            marginBottom: '12px',
-          }}
-        >
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id as any)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  border: `1px solid ${isSelected ? '#6366f1' : theme.border}`,
-                  backgroundColor: isSelected ? '#6366f1' : theme.innerBg,
-                  color: isSelected ? '#ffffff' : theme.textSecondary,
-                  fontSize: '11px',
-                  fontWeight: isSelected ? 700 : 500,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
+
 
         {/* Scrollable Grid of 35+ Animation Cards */}
         <div
@@ -223,15 +182,28 @@ export const AnimationEffectsModal: React.FC<AnimationEffectsModalProps> = ({
           }}
         >
           {filteredAnimations.map((anim) => {
-            const isSelected = activeAnimation === anim.id;
+            const isSelected = activeAnimation.includes(anim.id);
             const animClass = anim.id !== 'none' ? `caption-anim-${anim.id}` : '';
 
             return (
               <div
                 key={anim.id}
                 onClick={() => {
-                  onSelectAnimation(anim.id);
-                  onClose();
+                  if (anim.id === 'none') {
+                    onSelectAnimation(['none']);
+                  } else {
+                    let newAnims = activeAnimation.filter(a => a !== 'none');
+                    if (newAnims.includes(anim.id)) {
+                      newAnims = newAnims.filter(a => a !== anim.id);
+                      if (newAnims.length === 0) newAnims = ['none'];
+                    } else {
+                      if (newAnims.length >= 3) {
+                        newAnims.shift();
+                      }
+                      newAnims.push(anim.id);
+                    }
+                    onSelectAnimation(newAnims);
+                  }
                 }}
                 style={{
                   borderRadius: '12px',

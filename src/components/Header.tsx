@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Sun, Moon } from 'lucide-react';
+import { ChevronLeft, Sun, Moon, Home } from 'lucide-react';
 import { useAppTheme } from '../services/projectState';
 
 interface HeaderProps {
@@ -62,12 +62,32 @@ export const Header: React.FC<HeaderProps> = ({
             <ChevronLeft size={20} />
           </button>
         )}
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '9px',
+            backgroundColor: theme.cardBg,
+            border: `1px solid ${theme.border}`,
+            color: theme.textPrimary,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+          }}
+          title="Go Home"
+        >
+          <Home size={18} />
+        </button>
         <h1
           style={{
             fontSize: '16px',
             fontWeight: 700,
             color: theme.textPrimary,
             letterSpacing: '-0.3px',
+            marginLeft: '4px',
           }}
         >
           {title}

@@ -108,7 +108,7 @@ export const CaptionsPanel: React.FC<CaptionsPanelProps> = ({
             {isTranscribing && selectedLang === 'hi' && (
               <Loader2 size={12} className="animate-spin" />
             )}
-            <span>🇮🇳 Hindi</span>
+            <span>Hindi</span>
           </button>
 
           <button
@@ -131,7 +131,7 @@ export const CaptionsPanel: React.FC<CaptionsPanelProps> = ({
             {isTranscribing && selectedLang === 'hinglish' && (
               <Loader2 size={12} className="animate-spin" />
             )}
-            <span>⚡ Hinglish</span>
+            <span>Hinglish</span>
           </button>
         </div>
       </div>

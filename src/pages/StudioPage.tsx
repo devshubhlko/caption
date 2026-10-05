@@ -163,12 +163,13 @@ export const StudioPage: React.FC = () => {
   const [captionStyle, setCaptionStyle] = useState<'glass' | 'box' | 'neon' | 'clean' | 'pill' | 'outline' | 'gradient'>('glass');
   const [captionFontFamily, setCaptionFontFamily] = useState<string>('default');
   const [captionOpacity, setCaptionOpacity] = useState<number>(1);
-  const [captionAnimation, setCaptionAnimation] = useState<'none' | 'typewriter' | 'word-pop' | 'wave' | 'karaoke' | 'glitch' | 'bounce'>('none');
+  const [captionAnimation, setCaptionAnimation] = useState<string[]>(['none']);
 
   // Independent Custom Text Overlay State (persists simultaneously with subtitles)
   const [customText, setCustomText] = useState<string>('');
   const [customTextPosition, setCustomTextPosition] = useState<{ x: number; y: number }>({ x: 0, y: -70 });
   const [customTextFontSize, setCustomTextFontSize] = useState<number>(20);
+  const [customTextOpacity, setCustomTextOpacity] = useState<number>(1);
 
   // Subtitles Data State
   const [subtitles, setSubtitles] = useState<SubtitleCue[]>([]);
@@ -346,6 +347,7 @@ export const StudioPage: React.FC = () => {
         customText,
         customTextPosition,
         customTextFontSize,
+        customTextOpacity,
         onProgress: (pct, step) => {
           setExportProgress(pct);
           setExportStepText(step);
@@ -596,6 +598,8 @@ export const StudioPage: React.FC = () => {
               onCustomTextChange={setCustomText}
               customTextFontSize={customTextFontSize}
               onCustomTextFontSizeChange={setCustomTextFontSize}
+              customTextOpacity={customTextOpacity}
+              onCustomTextOpacityChange={setCustomTextOpacity}
               onSetCustomTextPosition={(x, y) => setCustomTextPosition({ x, y })}
             />
           )}
@@ -653,6 +657,7 @@ export const StudioPage: React.FC = () => {
               customTextPosition={customTextPosition}
               onCustomTextPositionChange={setCustomTextPosition}
               customTextFontSize={customTextFontSize}
+              customTextOpacity={customTextOpacity}
             />
 
             {/* Playback Controls & Seek Bar */}

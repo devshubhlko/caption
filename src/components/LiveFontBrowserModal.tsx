@@ -42,7 +42,6 @@ export const LiveFontBrowserModal: React.FC<LiveFontBrowserModalProps> = ({
 
   // Filter & Search State
   const [langFilter, setLangFilter] = useState<'all' | 'hi' | 'en'>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Live Preview Customizer
@@ -70,8 +69,7 @@ export const LiveFontBrowserModal: React.FC<LiveFontBrowserModalProps> = ({
       if (langFilter === 'hi' && font.language !== 'hi' && font.language !== 'all') return false;
       if (langFilter === 'en' && font.language !== 'en' && font.language !== 'all') return false;
 
-      // Category filter
-      if (categoryFilter !== 'all' && font.category !== categoryFilter) return false;
+
 
       // Search query
       if (searchQuery.trim().length > 0) {
@@ -83,7 +81,7 @@ export const LiveFontBrowserModal: React.FC<LiveFontBrowserModalProps> = ({
 
       return true;
     });
-  }, [langFilter, categoryFilter, searchQuery]);
+  }, [langFilter, searchQuery]);
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -91,7 +89,7 @@ export const LiveFontBrowserModal: React.FC<LiveFontBrowserModalProps> = ({
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
-  }, [langFilter, categoryFilter, searchQuery]);
+  }, [langFilter, searchQuery]);
 
   // Dynamic Lazy font loading for rendered batch
   useEffect(() => {
@@ -119,13 +117,7 @@ export const LiveFontBrowserModal: React.FC<LiveFontBrowserModalProps> = ({
 
   if (!isOpen) return null;
 
-  const categories = [
-    { id: 'all', label: 'All Styles' },
-    { id: 'sans-serif', label: 'Sans Serif' },
-    { id: 'serif', label: 'Serif / Royal' },
-    { id: 'display', label: 'Display / Bold' },
-    { id: 'handwriting', label: 'Handwriting / Script' },
-  ];
+
 
   return createPortal(
     <div
@@ -270,7 +262,7 @@ export const LiveFontBrowserModal: React.FC<LiveFontBrowserModalProps> = ({
                   transition: 'all 0.15s ease',
                 }}
               >
-                🇮🇳 Hindi ({HINDI_GOOGLE_FONTS.length})
+                 Hindi ({HINDI_GOOGLE_FONTS.length})
               </button>
               <button
                 onClick={() => setLangFilter('en')}
@@ -286,7 +278,7 @@ export const LiveFontBrowserModal: React.FC<LiveFontBrowserModalProps> = ({
                   transition: 'all 0.15s ease',
                 }}
               >
-                🇬🇧 English ({ENGLISH_GOOGLE_FONTS.length})
+                 English ({ENGLISH_GOOGLE_FONTS.length})
               </button>
             </div>
 
@@ -401,31 +393,6 @@ export const LiveFontBrowserModal: React.FC<LiveFontBrowserModalProps> = ({
               </select>
             </div>
 
-            {/* Category Pills */}
-            <div style={{ display: 'flex', gap: '4px', overflowX: 'auto', paddingBottom: '2px' }}>
-              {categories.map((cat) => {
-                const isSelected = categoryFilter === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setCategoryFilter(cat.id)}
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      border: `1px solid ${isSelected ? '#6366f1' : theme.border}`,
-                      backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.2)' : theme.innerBg,
-                      color: isSelected ? '#818cf8' : theme.textSecondary,
-                      fontSize: '11px',
-                      fontWeight: isSelected ? 700 : 500,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {cat.label}
-                  </button>
-                );
-              })}
-            </div>
           </div>
         </div>
 

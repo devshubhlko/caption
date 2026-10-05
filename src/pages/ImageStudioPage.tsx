@@ -61,6 +61,7 @@ export const ImageStudioPage: React.FC = () => {
   // Visual Effects & Overlay
   const [isDarkOverlayEnabled, setIsDarkOverlayEnabled] = useState<boolean>(false);
   const [overlayOpacity, setOverlayOpacity] = useState<number>(45); // percent
+  const [textColor, setTextColor] = useState<string>('#ffffff');
   const [shadowColor, setShadowColor] = useState<string>('#000000');
   const [shadowOpacity, setShadowOpacity] = useState<number>(85); // percent
   const [shadowBlur, setShadowBlur] = useState<number>(14);
@@ -184,7 +185,7 @@ export const ImageStudioPage: React.FC = () => {
       const shadowColorRgba = `rgba(${r}, ${g}, ${b}, ${shadowOpacity / 100})`;
 
       ctx.font = `bold ${scaledFontSize}px '${fontFamily}', sans-serif`;
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = textColor;
       ctx.textAlign = textAlignment;
       ctx.textBaseline = 'middle';
 
@@ -846,6 +847,33 @@ export const ImageStudioPage: React.FC = () => {
                     </button>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Text Color */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: theme.textPrimary, display: 'block', marginBottom: '4px' }}>
+                  Text Color
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="color"
+                    value={textColor}
+                    onChange={(e) => setTextColor(e.target.value)}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                    }}
+                  />
+                  <span style={{ fontSize: '12px', color: theme.textSecondary, fontFamily: 'monospace' }}>
+                    {textColor.toUpperCase()}
+                  </span>
+                </div>
               </div>
             </div>
 

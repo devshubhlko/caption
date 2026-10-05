@@ -31,7 +31,6 @@ export const CaptionPresetModal: React.FC<CaptionPresetModalProps> = ({
   currentSubtitleText,
 }) => {
   const { theme, isDark } = useAppTheme();
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'viral' | 'animation' | 'aesthetic' | 'cinematic' | 'hindi'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   if (!isOpen) return null;
@@ -39,22 +38,14 @@ export const CaptionPresetModal: React.FC<CaptionPresetModalProps> = ({
   const sampleText = currentSubtitleText || 'नमस्ते भारत • Viral Reels Punch ⚡';
 
   const filteredPresets = CAPTION_PRESETS.filter((p) => {
-    const matchesCat = selectedCategory === 'all' || p.category === selectedCategory;
     const matchesSearch =
       !searchQuery.trim() ||
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.fontFamily.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
+    return matchesSearch;
   });
 
-  const categories = [
-    { id: 'all', label: 'All Styles', icon: <Sparkles size={13} />, count: CAPTION_PRESETS.length },
-    { id: 'viral', label: '🔥 Viral Reels', icon: <Flame size={13} />, count: CAPTION_PRESETS.filter((p) => p.category === 'viral').length },
-    { id: 'hindi', label: '👑 Royal Hindi', icon: <Sparkles size={13} />, count: CAPTION_PRESETS.filter((p) => p.category === 'hindi').length },
-    { id: 'animation', label: '✨ Kinetic Typing', icon: <Zap size={13} />, count: CAPTION_PRESETS.filter((p) => p.category === 'animation').length },
-    { id: 'aesthetic', label: '🎨 Aesthetic', icon: <Wand2 size={13} />, count: CAPTION_PRESETS.filter((p) => p.category === 'aesthetic').length },
-    { id: 'cinematic', label: '🎬 Movie / Doc', icon: <Film size={13} />, count: CAPTION_PRESETS.filter((p) => p.category === 'cinematic').length },
-  ];
+
 
   const handleSelect = (preset: CaptionPreset) => {
     loadGoogleFont(preset.fontFamily);
@@ -164,53 +155,7 @@ export const CaptionPresetModal: React.FC<CaptionPresetModalProps> = ({
             <Sparkles size={14} color="#818cf8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
           </div>
 
-          {/* Category Filters Bar */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '8px',
-              overflowX: 'auto',
-              paddingBottom: '2px',
-            }}
-          >
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id as any)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  border: `1px solid ${isSelected ? '#6366f1' : theme.border}`,
-                  backgroundColor: isSelected ? '#6366f1' : theme.innerBg,
-                  color: isSelected ? '#ffffff' : theme.textSecondary,
-                  fontSize: '11px',
-                  fontWeight: isSelected ? 700 : 500,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {cat.icon}
-                <span>{cat.label}</span>
-                <span
-                  style={{
-                    backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.2)',
-                    padding: '1px 6px',
-                    borderRadius: '10px',
-                    fontSize: '10px',
-                  }}
-                >
-                  {cat.count}
-                </span>
-              </button>
-            );
-          })}
-          </div>
+
         </div>
 
         {/* Presets Grid */}

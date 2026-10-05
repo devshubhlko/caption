@@ -262,7 +262,7 @@ export const GoogleFontModal: React.FC<GoogleFontModalProps> = ({
               transition: 'all 0.15s ease',
             }}
           >
-            🇮🇳 Hindi Fonts ({hindiFonts.length})
+           Hindi Fonts ({hindiFonts.length})
           </button>
 
           <button
@@ -280,7 +280,7 @@ export const GoogleFontModal: React.FC<GoogleFontModalProps> = ({
               transition: 'all 0.15s ease',
             }}
           >
-            🇬🇧 English Fonts ({englishFonts.length})
+             English Fonts ({englishFonts.length})
           </button>
         </div>
 

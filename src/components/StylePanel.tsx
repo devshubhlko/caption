@@ -72,8 +72,8 @@ interface StylePanelProps {
   onFontChange: (font: string) => void;
   captionOpacity?: number;
   onOpacityChange?: (opacity: number) => void;
-  captionAnimation?: string;
-  onAnimationChange?: (anim: any) => void;
+  captionAnimation?: string[];
+  onAnimationChange?: (anim: string[]) => void;
   onSetPresetPosition: (x: number, y: number) => void;
   currentSubtitleText?: string;
   customText?: string;
@@ -99,7 +99,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
   onFontChange,
   captionOpacity = 1,
   onOpacityChange,
-  captionAnimation = 'none',
+  captionAnimation = ['none'],
   onAnimationChange,
   onSetPresetPosition,
   currentSubtitleText,
@@ -153,7 +153,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
     onStyleChange(preset.boxStyle);
     if (onBgColorChange && preset.boxBgColor) onBgColorChange(preset.boxBgColor);
     if (onOpacityChange) onOpacityChange(preset.opacity ?? 1);
-    if (onAnimationChange) onAnimationChange(preset.animationType ?? 'none');
+    if (onAnimationChange) onAnimationChange([preset.animationType ?? 'none']);
   };
 
   const isCustomColor = !CAPTION_COLORS.some((c) => c.hex.toLowerCase() === captionColor.toLowerCase());
@@ -166,8 +166,9 @@ export const StylePanel: React.FC<StylePanelProps> = ({
     { id: 'word-pop', name: 'Word Pop', icon: '💥' },
   ];
 
-  const currentAnimationName =
-    ANIMATION_EFFECTS.find((a) => a.id === captionAnimation)?.name || 'Static';
+  const currentAnimationName = captionAnimation.length > 0 && captionAnimation[0] !== 'none'
+    ? captionAnimation.map(id => ANIMATION_EFFECTS.find((a) => a.id === id)?.name || '').filter(n => n).join(' + ') || 'Static'
+    : 'Static';
 
   const displayedFonts = (fontTab === 'hi' ? hindiFonts : englishFonts).slice(0, 4);
 
@@ -804,11 +805,11 @@ export const StylePanel: React.FC<StylePanelProps> = ({
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
           {quickAnimations.map((anim) => {
-            const isSelected = captionAnimation === anim.id;
+            const isSelected = captionAnimation.includes(anim.id);
             return (
               <button
                 key={anim.id}
-                onClick={() => onAnimationChange && onAnimationChange(anim.id as any)}
+                onClick={() => onAnimationChange && onAnimationChange([anim.id])}
                 style={{
                   padding: '7px 4px',
                   borderRadius: '7px',
@@ -834,14 +835,14 @@ export const StylePanel: React.FC<StylePanelProps> = ({
             );
           })}
 
-          {/* 4th Item: View All (35+) Animation Effects Modal Button */}
+          {/* 4th Item: View All (20) Animation Effects Modal Button */}
           <button
             onClick={() => setIsAnimationModalOpen(true)}
             style={{
               padding: '7px 4px',
               borderRadius: '7px',
               border: '1.5px solid #6366f1',
-              backgroundColor: !quickAnimations.some((a) => a.id === captionAnimation)
+              backgroundColor: !quickAnimations.some((a) => captionAnimation.includes(a.id))
                 ? 'rgba(99, 102, 241, 0.35)'
                 : 'rgba(99, 102, 241, 0.15)',
               color: '#818cf8',
@@ -852,14 +853,14 @@ export const StylePanel: React.FC<StylePanelProps> = ({
               flexDirection: 'column',
               alignItems: 'center',
               gap: '2px',
-              boxShadow: !quickAnimations.some((a) => a.id === captionAnimation)
+              boxShadow: !quickAnimations.some((a) => captionAnimation.includes(a.id))
                 ? '0 0 10px rgba(99, 102, 241, 0.4)'
                 : 'none',
               transition: 'all 0.15s ease',
             }}
           >
             <Zap size={14} />
-            <span>View All (35+)</span>
+            <span>View All (20)</span>
           </button>
         </div>
       </div>
@@ -916,7 +917,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
               transition: 'all 0.15s ease',
             }}
           >
-            🇮🇳 Hindi Fonts
+           Hindi Fonts
           </button>
 
           <button
@@ -934,7 +935,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
               transition: 'all 0.15s ease',
             }}
           >
-            🇬🇧 English Fonts
+             English Fonts
           </button>
         </div>
 
