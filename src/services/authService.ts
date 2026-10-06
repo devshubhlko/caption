@@ -4,6 +4,7 @@ export const REMEMBER_ME_KEY = 'app_remember_me';
 interface AuthState {
   isAuthenticated: boolean;
   userId: string | null;
+  groqApiKey?: string;
 }
 
 const DEFAULT_USER = 'SHUBHAM';
@@ -34,11 +35,16 @@ export const getAuthState = (): AuthState => {
   return { isAuthenticated: false, userId: null };
 };
 
-export const login = (userId: string, pass: string): boolean => {
+export const getStoredGroqApiKey = (): string => {
+  const state = getAuthState();
+  return state.groqApiKey || '';
+};
+
+export const login = (userId: string, pass: string, groqApiKey: string = ''): boolean => {
   const creds = getStoredCredentials();
   // Exact case-sensitive match
   if (userId === creds.userId && pass === creds.password) {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ isAuthenticated: true, userId }));
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ isAuthenticated: true, userId, groqApiKey }));
     return true;
   }
   return false;

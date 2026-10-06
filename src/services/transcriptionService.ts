@@ -1,3 +1,5 @@
+import { getStoredGroqApiKey } from './authService';
+
 export const DEFAULT_GROQ_API_KEY = '';
 
 export interface SubtitleCue {
@@ -330,7 +332,7 @@ export async function convertCuesLanguage(
   apiKey?: string
 ): Promise<SubtitleCue[]> {
   if (!cues || cues.length === 0) return cues;
-  const activeKey = apiKey && apiKey.trim().length > 0 ? apiKey.trim() : DEFAULT_GROQ_API_KEY;
+  const activeKey = apiKey && apiKey.trim().length > 0 ? apiKey.trim() : getStoredGroqApiKey() || DEFAULT_GROQ_API_KEY;
 
   const BATCH_SIZE = 20;
   const convertedCues: SubtitleCue[] = [];
@@ -422,7 +424,7 @@ export async function transcribeAudioToSubtitles(
   const activeKey =
     customApiKey && customApiKey.trim().length > 0
       ? customApiKey.trim()
-      : DEFAULT_GROQ_API_KEY;
+      : getStoredGroqApiKey() || DEFAULT_GROQ_API_KEY;
 
   const whisperLanguage = 'hi';
 

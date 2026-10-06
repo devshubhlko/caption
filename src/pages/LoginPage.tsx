@@ -11,6 +11,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const { theme } = useAppTheme();
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+  const [groqApiKey, setGroqApiKey] = useState('');
   const [rememberMe, setRememberMeState] = useState(true); // default to true as per request "remeber be ka option ho tab tak checked ho"
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +29,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     e.preventDefault();
     setError('');
     
-    if (login(userId, password)) {
+    if (login(userId, password, groqApiKey)) {
       setRememberMe(userId, password, rememberMe);
       onLoginSuccess();
     } else {
@@ -167,6 +168,40 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: theme.textSecondary, marginBottom: '8px' }}>
+              Groq API Key (Optional)
+            </label>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: theme.innerBg,
+                border: `1.5px solid ${theme.border}`,
+                borderRadius: '12px',
+                padding: '0 14px',
+                gap: '10px',
+              }}
+            >
+              <Key size={18} color={theme.textSecondary} />
+              <input
+                type="text"
+                value={groqApiKey}
+                onChange={(e) => setGroqApiKey(e.target.value)}
+                placeholder="gsk_..."
+                style={{
+                  flex: 1,
+                  backgroundColor: 'transparent',
+                  color: theme.textPrimary,
+                  fontSize: '14px',
+                  padding: '14px 0',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
             </div>
           </div>
 
